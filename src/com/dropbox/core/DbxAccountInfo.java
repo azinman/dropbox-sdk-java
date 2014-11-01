@@ -18,14 +18,16 @@ public class DbxAccountInfo extends Dumpable
     public final String country;
     public final String referralLink;
     public final Quota quota;
+    public final String email;
 
-    public DbxAccountInfo(long userId, String displayName, String country, String referralLink, Quota quota)
+    public DbxAccountInfo(long userId, String displayName, String country, String referralLink, Quota quota, String email)
     {
         this.userId = userId;
         this.displayName = displayName;
         this.country = country;
         this.referralLink = referralLink;
         this.quota = quota;
+        this.email = email;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class DbxAccountInfo extends Dumpable
         out.field("country", country);
         out.field("referralLink", referralLink);
         out.field("quota", quota);
+        out.field("email", email);
     }
 
     public static final class Quota extends Dumpable
@@ -133,6 +136,7 @@ public class DbxAccountInfo extends Dumpable
             String country = null;
             String referral_link = null;
             Quota quota_info = null;
+            String email = null;
 
             while (parser.getCurrentToken() == JsonToken.FIELD_NAME) {
                 String fieldName = parser.getCurrentName();
@@ -147,6 +151,7 @@ public class DbxAccountInfo extends Dumpable
                         case FM_country: country = JsonReader.StringReader.readField(parser, fieldName, country); break;
                         case FM_referral_link: referral_link = JsonReader.StringReader.readField(parser, fieldName, referral_link); break;
                         case FM_quota_info: quota_info = Quota.Reader.readField(parser, fieldName, quota_info); break;
+                        case FM_email: email = JsonReader.StringReader.readField(parser, fieldName, email); break;
                         default:
                             throw new AssertionError("bad index: " + fi + ", field = \"" + fieldName + "\"");
                     }
@@ -158,13 +163,15 @@ public class DbxAccountInfo extends Dumpable
 
             JsonReader.expectObjectEnd(parser);
 
+            System.out.println("found email " + email);
+
             if (uid < 0) throw new JsonReadException("missing field \"uid\"", top);
             if (display_name == null) throw new JsonReadException("missing field \"display_name\"", top);
             if (country == null) throw new JsonReadException("missing field \"country\"", top);
             if (referral_link == null) throw new JsonReadException("missing field \"referral_link\"", top);
             if (quota_info == null) throw new JsonReadException("missing field \"quota_info\"", top);
 
-            return new DbxAccountInfo(uid, display_name, country, referral_link, quota_info);
+            return new DbxAccountInfo(uid, display_name, country, referral_link, quota_info, email);
         }
     };
 
@@ -173,6 +180,7 @@ public class DbxAccountInfo extends Dumpable
     private static final int FM_country = 2;
     private static final int FM_referral_link = 3;
     private static final int FM_quota_info = 4;
+    private static final int FM_email = 5;
     private static final JsonReader.FieldMapping FM;
 
     static {
@@ -182,6 +190,7 @@ public class DbxAccountInfo extends Dumpable
         b.add("country", FM_country);
         b.add("referral_link", FM_referral_link);
         b.add("quota_info", FM_quota_info);
+        b.add("email", FM_email);
         FM = b.build();
     }
 }
